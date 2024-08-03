@@ -331,7 +331,7 @@ async function setOrderType(orderType)
     else
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
-        await sleep(200);
+        await sleep(2000);
         setStopPrice(20100);
     }
 }
