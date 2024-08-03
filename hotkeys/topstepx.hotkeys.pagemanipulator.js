@@ -369,10 +369,16 @@ async function setStopPrice(stop_price)
         return;
     }
 
-	// Focus the input box
-    	stopPriceInput.focus();
-	await sleep(300);
+    // Focus the input box
+    stopPriceInput.focus();
+    await sleep(30);
+    
+    // Set the value and trigger necessary events
     stopPriceInput.value = stop_price;
     stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
     stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
+    stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: '0' }));
+    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: '0' }));
+    stopPriceInput.dispatchEvent(new Event('focus', { bubbles: true }));
+    stopPriceInput.dispatchEvent(new Event('blur', { bubbles: true }));
 }
