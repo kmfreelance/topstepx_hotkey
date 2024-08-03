@@ -351,10 +351,11 @@ async function setOrderType(orderType)
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
         await sleep(3000);
+	setMarketStopPrice()
     }
 }
 
-async function setStopPrice(stop_price)
+async function setMarketStopPrice()
 {
     var cardDiv = document.querySelector('div[class^=ordercard_order]');
     
