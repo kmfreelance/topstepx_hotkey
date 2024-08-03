@@ -310,6 +310,7 @@ async function setAccount(account, delayMilliseconds = 25)
 
 async function setOrderType(orderType)
 {
+	console.log('Order Type: ' + orderType)
     var cardDiv = document.querySelector('div[class^=ordercard_order]');
     
     if(cardDiv == null) 
