@@ -353,15 +353,15 @@ async function setOrderType(orderType)
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
         await sleep(1000);
 
-	if (orderType == 1){
+	if (orderType == 'limit'){
             setMarketLimitPrice()
         }
         
-        if (orderType == 2){
+        if (orderType == 'stop market'){
             setMarketStopPrice()
         }
 
-        if (orderType == 3){
+        if (orderType == 'trailing stop'){
             setTrailingStop()
         }
     }
