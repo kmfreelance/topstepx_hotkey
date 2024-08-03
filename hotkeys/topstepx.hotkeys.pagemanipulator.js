@@ -351,7 +351,18 @@ async function setOrderType(orderType)
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
         await sleep(3000);
-	setMarketStopPrice()
+
+	if (orderType == 1){
+            setMarketLimitPrice()
+        }
+        
+        if (orderType == 2){
+            setMarketStopPrice()
+        }
+
+        if (orderType == 3){
+            setTrailingStop()
+        }
     }
 }
 
@@ -403,24 +414,96 @@ async function setMarketStopPrice()
     stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
     await sleep(1000);
 
-        // Set the value and trigger necessary events
-    // stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
-    // await sleep(30);
-    // stopPriceInput.value = stop_price;
-    // await sleep(30);
-    // stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
-    // await sleep(30);
+}
 
-    // stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
-    // await sleep(30);
+async function setMarketLimitPrice()
+{
+    var cardDiv = document.querySelector('div[class^=ordercard_order]');
+    
+    if(cardDiv == null) 
+    {
+        console.error("Cannot find card div");
+        return;
+    }
 
-    // stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 38, bubbles: true}));
-    // // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {keyCode: 38, bubbles: true}));
-    // await sleep(300);
+    // Get all labels within the card div
+    var labels = cardDiv.querySelectorAll('label');
 
-    // stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 40, bubbles: true}));
-    // // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
-    // await sleep(300);
+    var limitPriceInput = null;
+    // Iterate through each label
+    for (var i = 0; i < labels.length; i++) {
+        console.log(labels[i].textContent.trim());
+        // Check if the label's text content is "Stop Price"
+        if (labels[i].textContent.trim().includes('Limit Price')) {
+            foundLimitPriceLabel = true;
+            // Select the parent div of the label with the specific class
+            var inputDiv = labels[i].closest('div.MuiFormControl-root');
+            if (inputDiv) {
+                console.info(inputDiv.outerHTML);
+                // Find the combobox within this div
+                limitPriceInput = inputDiv.querySelector('input[type=number]');
+                break;  // Break the loop once we find the correct input
+            }
+        }
+    }
 
-    // stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
+    if (!foundLimitPriceLabel) {
+        console.error('Unable to find Limit Price label');
+        return;
+    }
+
+    if (limitPriceInput == null) {
+        console.error('Unable to locate Limit Price Edit Box');
+        return;
+    }
+
+    // Focus the input box
+    limitPriceInput.focus();
+	await sleep(300);
+}
+
+async function setTrailingStop()
+{
+    var cardDiv = document.querySelector('div[class^=ordercard_order]');
+    
+    if(cardDiv == null) 
+    {
+        console.error("Cannot find card div");
+        return;
+    }
+
+    // Get all labels within the card div
+    var labels = cardDiv.querySelectorAll('label');
+
+    var trailInput = null;
+    // Iterate through each label
+    for (var i = 0; i < labels.length; i++) {
+        console.log(labels[i].textContent.trim());
+        // Check if the label's text content is "Stop Price"
+        if (labels[i].textContent.trim().includes('Trail Distance')) {
+            foundTrailLabel = true;
+            // Select the parent div of the label with the specific class
+            var inputDiv = labels[i].closest('div.MuiFormControl-root');
+            if (inputDiv) {
+                console.info(inputDiv.outerHTML);
+                // Find the combobox within this div
+                trailInput = inputDiv.querySelector('input[type=number]');
+                break;  // Break the loop once we find the correct input
+            }
+        }
+    }
+
+    if (!foundTrailLabel) {
+        console.error('Unable to find Trail Distance label');
+        return;
+    }
+
+    if (trailInput == null) {
+        console.error('Unable to locate Trial Distance Edit Box');
+        return;
+    }
+
+    // Focus the input box
+    trailInput.focus();
+	await sleep(300);
 }
