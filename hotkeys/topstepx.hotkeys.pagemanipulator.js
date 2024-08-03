@@ -352,6 +352,7 @@ async function setStopPrice(stop_price)
     var stopPriceInput = null;
     // Iterate through each label
     for (var i = 0; i < labels.length; i++) {
+	console.log(labels[i].textContent.trim());
         // Check if the label's text content is "Stop Price"
         if (labels[i].textContent.trim().includes('Stop Price')) {
             foundStopPriceLabel = true;
