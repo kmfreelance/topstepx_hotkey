@@ -289,23 +289,33 @@ async function setAccount(account, delayMilliseconds = 25)
     input_div.dispatchEvent(new Event('click', { bubbles : true }));
 }
 
-async function setOrderType(orderType)
-{
-	var input_div = document.querySelector('div[class^=ordercard_order]').querySelector('div[role=combobox]')
-    if(input_div == null)
-    {
-        console.log('unable to find input div for contract section');
-        return;
-    }
-	input_div.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true}));
-    await sleep(10);
-	var orderType_li = [...document.querySelectorAll('li')].filter(d => d.innerText.toLowerCase().includes(orderType.toLowerCase()))[0]
-    if(orderType_li == null)
-    {
-        console.log('unable to find li element for account ' + orderType);
-    }
-    else
-    {
-        orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
-    }
+async function setOrderType(orderType, delayMilliseconds = 25) {
+  // Define a sleep function that returns a promise
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  // Find the dropdown element
+  const dropdown = document.querySelector('label[id$=-label][data-shrink=true]').nextElementSibling.querySelector('div[role=combobox]');
+  if (!dropdown) {
+    console.log('Unable to find dropdown element');
+    return;
+  }
+
+  // Open the dropdown
+  dropdown.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  await sleep(delayMilliseconds);
+
+  // Find the desired option
+  const options = document.querySelectorAll('li[role=menuitem]');
+  const desiredOption = Array.from(options).find((option) => option.innerText.toLowerCase().includes(orderType.toLowerCase()));
+  if (!desiredOption) {
+    console.log(`Unable to find option ${orderType}`);
+    return;
+  }
+
+  // Select the desired option
+  desiredOption.dispatchEvent(new Event('click', { bubbles: true }));
+  await sleep(delayMilliseconds);
+
+  // Close the dropdown
+  dropdown.dispatchEvent(new Event('click', { bubbles: true }));
 }
