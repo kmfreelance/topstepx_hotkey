@@ -289,7 +289,7 @@ async function setAccount(account, delayMilliseconds = 25)
     input_div.dispatchEvent(new Event('click', { bubbles : true }));
 }
 
-async function setOrderType(orderType, delayMilliseconds = 25, debug = false) {
+async function setOrderType(orderType, delayMilliseconds = 25, debug = true) {
   // Define a sleep function that returns a promise
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
