@@ -291,14 +291,14 @@ async function setAccount(account, delayMilliseconds = 25)
 
 async function setOrderType(orderType)
 {
-    cardDiv = document.querySelector('div[class^=ordercard_order]');
+    var cardDiv = document.querySelector('div[class^=ordercard_order]');
     
     if(cardDiv == null) 
     {
         console.error("Cannot find card div");
         return;
     }
-    
+
     // Get all labels within the card div
     var labels = cardDiv.querySelectorAll('label');
 
@@ -311,6 +311,7 @@ async function setOrderType(orderType)
             if (inputDiv) {
                 // Find the combobox within this div
                 var input_dropdown = inputDiv.querySelector('div[role=combobox]');
+                break;  // Break the loop once we find the correct input
             }
         }
     }
@@ -337,7 +338,7 @@ async function setOrderType(orderType)
 
 async function setStopPrice(stop_price)
 {
-    cardDiv = document.querySelector('div[class^=ordercard_order]');
+    var cardDiv = document.querySelector('div[class^=ordercard_order]');
     
     if(cardDiv == null) 
     {
@@ -348,6 +349,7 @@ async function setStopPrice(stop_price)
     // Get all labels within the card div
     var labels = cardDiv.querySelectorAll('label');
 
+    var stopPriceInput = null;
     // Iterate through each label
     for (var i = 0; i < labels.length; i++) {
         // Check if the label's text content is "Stop Price"
@@ -355,13 +357,15 @@ async function setStopPrice(stop_price)
             // Select the parent div of the label with the specific class
             var inputDiv = labels[i].closest('div.MuiFormControl-root');
             if (inputDiv) {
+                console.info(inputDiv.outerHTML);
                 // Find the combobox within this div
-                var stop_price_input = inputDiv.querySelector('input[type=number]');
+                stopPriceInput = inputDiv.querySelector('input[type=number]');
+                break;  // Break the loop once we find the correct input
             }
         }
     }
 
-    if(stop_price_input == null) { console.log('Unable to locate Stop Price Edit Box'); return; }
-    stop_price_input.value = stop_price;
-    stop_price_input.dispatchEvent(new Event('change', {bubbles: true}));
+    if(stopPriceInput == null) { console.log('Unable to locate Stop Price Edit Box'); return; }
+    stopPriceInput.value = stop_price;
+    stopPriceInput.dispatchEvent(new Event('change', {bubbles: true}));
 }
