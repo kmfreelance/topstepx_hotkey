@@ -289,68 +289,24 @@ async function setAccount(account, delayMilliseconds = 25)
     input_div.dispatchEvent(new Event('click', { bubbles : true }));
 }
 
-async function setOrderType(orderType, delayMilliseconds = 25, debug = true) {
-    // Define a sleep function that returns a promise
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  
-    // Find the dropdown element
-
-    // Find the div containing the label "Order Type"
-    const orderTypeDiv = document.querySelector('div[label="Order Type"]');
-
-    // Find the combobox element inside the div
-    const combobox = orderTypeDiv.querySelector('div[role="combobox"]');
-    // const dropdown = document.querySelector('label[id$=-label][data-shrink=true]').nextElementSibling.querySelector('div[role=combobox]');
-    if (!combobox) {
-      console.log('Unable to find dropdown element');
-      if (debug) {
-        console.log('Dropdown element not found. Available elements:');
-        // console.log(document.querySelectorAll('label[id$=-label][data-shrink=true]').nextElementSibling);
-      }
-      return;
+async function setOrderType(orderType)
+{
+    var input_div = [...document.querySelectorAll('div[class^=MuiInputBase-root')].filter(d => d.innerText.toLowerCase().startsWith('order type'))[0]
+	var input_dropdown = input_div.querySelector('div[role=combobox]')
+    if(input_dropdown == null)
+    {
+        console.log('unable to find input div for order type section');
+        return;
     }
-  
-    if (debug) {
-      console.log('Dropdown element found:');
-      console.log(combobox);
+	input_dropdown.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true}));
+    await sleep(10);
+	var orderType_li = [...document.querySelectorAll('li')].filter(d => d.innerText.toLowerCase().includes(orderType.toLowerCase()))[0]
+    if(orderType_li == null)
+    {
+        console.log('unable to find li element for account ' + orderType);
     }
-  
-    // Open the dropdown
-    combobox.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    // await sleep(delayMilliseconds);
-
-    // Wait for the options to load
-    await new Promise(resolve => setTimeout(resolve, 25));
-
-    // // Find the desired option
-    // const options = document.querySelectorAll('li[role="menuitem"]');
-    // const desiredOption = Array.from(options).find((option) => option.textContent.includes('Limit'));
-  
-    // Find the desired option
-    const options = document.querySelectorAll('li[role=menuitem]');
-    const desiredOption = Array.from(options).find((option) => option.innerText.toLowerCase().includes(orderType.toLowerCase()));
-    if (!desiredOption) {
-      console.log(`Unable to find option ${orderType}`);
-      if (debug) {
-        console.log('Available options:');
-        console.log(options);
-      }
-      return;
+    else
+    {
+        orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
     }
-  
-    if (debug) {
-      console.log('Desired option found:');
-      console.log(desiredOption);
-    }
-  
-    // Select the desired option
-    desiredOption.dispatchEvent(new Event('click', { bubbles: true }));
-    await sleep(delayMilliseconds);
-  
-    // // Close the dropdown
-    // combobox.dispatchEvent(new Event('click', { bubbles: true }));
-  
-    if (debug) {
-      console.log('Order type set to:', orderType);
-    }
-  }
+}
