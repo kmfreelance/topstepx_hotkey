@@ -373,6 +373,9 @@ async function setStopPrice(stop_price)
     stopPriceInput.focus();
 	await sleep(300);
 
+    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
+    await sleep(1000);
+
     // Set the value and trigger necessary events
     stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
     await sleep(30);
@@ -384,13 +387,13 @@ async function setStopPrice(stop_price)
     stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
     await sleep(30);
 
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true}));
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowUp', bubbles: true}));
-    await sleep(30);
+    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 38, bubbles: true}));
+    // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {keyCode: 38, bubbles: true}));
+    await sleep(300);
 
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true}));
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
-    await sleep(30);
+    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 40, bubbles: true}));
+    // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
+    await sleep(300);
 
     stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
 }
