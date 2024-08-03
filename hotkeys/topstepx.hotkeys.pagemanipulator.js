@@ -357,7 +357,7 @@ async function setStopPrice(stop_price)
             // Select the parent div of the label with the specific class
             var inputDiv = labels[i].closest('div.MuiFormControl-root');
             if (inputDiv) {
-                console.info(inputDiv.outerHTML);
+                console.log(inputDiv.outerHTML);
                 // Find the combobox within this div
                 stopPriceInput = inputDiv.querySelector('input[type=number]');
                 break;  // Break the loop once we find the correct input
