@@ -289,7 +289,7 @@ async function setAccount(account, delayMilliseconds = 25)
     input_div.dispatchEvent(new Event('click', { bubbles : true }));
 }
 
-async function setOrderType(orderType, delayMilliseconds = 25) {
+async function setOrderType(orderType, delayMilliseconds = 25, debug = false) {
   // Define a sleep function that returns a promise
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -297,7 +297,16 @@ async function setOrderType(orderType, delayMilliseconds = 25) {
   const dropdown = document.querySelector('label[id$=-label][data-shrink=true]').nextElementSibling.querySelector('div[role=combobox]');
   if (!dropdown) {
     console.log('Unable to find dropdown element');
+    if (debug) {
+      console.log('Dropdown element not found. Available elements:');
+      console.log(document.querySelectorAll('label[id$=-label][data-shrink=true]').nextElementSibling);
+    }
     return;
+  }
+
+  if (debug) {
+    console.log('Dropdown element found:');
+    console.log(dropdown);
   }
 
   // Open the dropdown
@@ -309,7 +318,16 @@ async function setOrderType(orderType, delayMilliseconds = 25) {
   const desiredOption = Array.from(options).find((option) => option.innerText.toLowerCase().includes(orderType.toLowerCase()));
   if (!desiredOption) {
     console.log(`Unable to find option ${orderType}`);
+    if (debug) {
+      console.log('Available options:');
+      console.log(options);
+    }
     return;
+  }
+
+  if (debug) {
+    console.log('Desired option found:');
+    console.log(desiredOption);
   }
 
   // Select the desired option
@@ -318,4 +336,8 @@ async function setOrderType(orderType, delayMilliseconds = 25) {
 
   // Close the dropdown
   dropdown.dispatchEvent(new Event('click', { bubbles: true }));
+
+  if (debug) {
+    console.log('Order type set to:', orderType);
+  }
 }
