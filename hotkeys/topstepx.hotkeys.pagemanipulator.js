@@ -353,7 +353,7 @@ async function setStopPrice(stop_price)
     // Iterate through each label
     for (var i = 0; i < labels.length; i++) {
         // Check if the label's text content is "Stop Price"
-        if (labels[i].textContent.trim() === 'Stop Price') {
+        if (labels[i].textContent.trim().includes('Stop Price')) {
             foundStopPriceLabel = true;
             // Select the parent div of the label with the specific class
             var inputDiv = labels[i].closest('div.MuiFormControl-root');
