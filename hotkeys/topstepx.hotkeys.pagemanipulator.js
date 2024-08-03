@@ -378,5 +378,6 @@ async function setStopPrice(stop_price)
     }
 
     stopPriceInput.value = stop_price;
-    stopPriceInput.dispatchEvent(new Event('change', {bubbles: true}));
+    stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
+    stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
 }
