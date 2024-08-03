@@ -290,54 +290,67 @@ async function setAccount(account, delayMilliseconds = 25)
 }
 
 async function setOrderType(orderType, delayMilliseconds = 25, debug = true) {
-  // Define a sleep function that returns a promise
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    // Define a sleep function that returns a promise
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  
+    // Find the dropdown element
 
-  // Find the dropdown element
-  const dropdown = document.querySelector('label[id$=-label][data-shrink=true]').nextElementSibling.querySelector('div[role=combobox]');
-  if (!dropdown) {
-    console.log('Unable to find dropdown element');
-    if (debug) {
-      console.log('Dropdown element not found. Available elements:');
-      console.log(document.querySelectorAll('label[id$=-label][data-shrink=true]').nextElementSibling);
+    // Find the div containing the label "Order Type"
+    const orderTypeDiv = document.querySelector('div[label="Order Type"]');
+
+    // Find the combobox element inside the div
+    const combobox = orderTypeDiv.querySelector('div[role="combobox"]');
+    // const dropdown = document.querySelector('label[id$=-label][data-shrink=true]').nextElementSibling.querySelector('div[role=combobox]');
+    if (!combobox) {
+      console.log('Unable to find dropdown element');
+      if (debug) {
+        console.log('Dropdown element not found. Available elements:');
+        // console.log(document.querySelectorAll('label[id$=-label][data-shrink=true]').nextElementSibling);
+      }
+      return;
     }
-    return;
-  }
-
-  if (debug) {
-    console.log('Dropdown element found:');
-    console.log(dropdown);
-  }
-
-  // Open the dropdown
-  dropdown.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-  await sleep(delayMilliseconds);
-
-  // Find the desired option
-  const options = document.querySelectorAll('li[role=menuitem]');
-  const desiredOption = Array.from(options).find((option) => option.innerText.toLowerCase().includes(orderType.toLowerCase()));
-  if (!desiredOption) {
-    console.log(`Unable to find option ${orderType}`);
+  
     if (debug) {
-      console.log('Available options:');
-      console.log(options);
+      console.log('Dropdown element found:');
+      console.log(combobox);
     }
-    return;
+  
+    // Open the dropdown
+    combobox.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    // await sleep(delayMilliseconds);
+
+    // Wait for the options to load
+    await new Promise(resolve => setTimeout(resolve, 25));
+
+    // // Find the desired option
+    // const options = document.querySelectorAll('li[role="menuitem"]');
+    // const desiredOption = Array.from(options).find((option) => option.textContent.includes('Limit'));
+  
+    // Find the desired option
+    const options = document.querySelectorAll('li[role=menuitem]');
+    const desiredOption = Array.from(options).find((option) => option.innerText.toLowerCase().includes(orderType.toLowerCase()));
+    if (!desiredOption) {
+      console.log(`Unable to find option ${orderType}`);
+      if (debug) {
+        console.log('Available options:');
+        console.log(options);
+      }
+      return;
+    }
+  
+    if (debug) {
+      console.log('Desired option found:');
+      console.log(desiredOption);
+    }
+  
+    // Select the desired option
+    desiredOption.dispatchEvent(new Event('click', { bubbles: true }));
+    await sleep(delayMilliseconds);
+  
+    // // Close the dropdown
+    // combobox.dispatchEvent(new Event('click', { bubbles: true }));
+  
+    if (debug) {
+      console.log('Order type set to:', orderType);
+    }
   }
-
-  if (debug) {
-    console.log('Desired option found:');
-    console.log(desiredOption);
-  }
-
-  // Select the desired option
-  desiredOption.dispatchEvent(new Event('click', { bubbles: true }));
-  await sleep(delayMilliseconds);
-
-  // Close the dropdown
-  dropdown.dispatchEvent(new Event('click', { bubbles: true }));
-
-  if (debug) {
-    console.log('Order type set to:', orderType);
-  }
-}
