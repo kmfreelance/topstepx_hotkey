@@ -371,24 +371,26 @@ async function setStopPrice(stop_price)
 
     // Focus the input box
     stopPriceInput.focus();
-    await sleep(30);
-    
-    // Set the value and trigger necessary events
-    stopPriceInput.value = stop_price;
-    stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
-    stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
+	await sleep(300);
 
+    // Set the value and trigger necessary events
+    stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
     await sleep(30);
-	
-    // Trigger Arrow Up and Arrow Down key events
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowUp' }));
+    stopPriceInput.value = stop_price;
     await sleep(30);
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'ArrowUp' }));
+    stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
     await sleep(30);
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowDown' }));
+
+    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
     await sleep(30);
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'ArrowDown' }));
-	
-    stopPriceInput.dispatchEvent(new Event('focus', { bubbles: true }));
-    stopPriceInput.dispatchEvent(new Event('blur', { bubbles: true }));
+
+    input_dropdown.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true}));
+    input_dropdown.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowUp', bubbles: true}));
+    await sleep(30);
+
+    input_dropdown.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowDown', bubbles: true}));
+    input_dropdown.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
+    await sleep(30);
+
+    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
 }
