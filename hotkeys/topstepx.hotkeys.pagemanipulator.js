@@ -350,7 +350,7 @@ async function setOrderType(orderType)
     else
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
-        await sleep(300);
+        await sleep(1000);
 
 	if (orderType == 1){
             setMarketLimitPrice()
