@@ -291,9 +291,14 @@ async function setAccount(account, delayMilliseconds = 25)
 
 async function setOrderType(orderType)
 {
-    // var input_div = [...document.querySelectorAll('div[class^=MuiInputBase-root')].filter(d => d.innerText.toLowerCase().startsWith('order type'))[0]
-	// var input_dropdown = input_div.querySelector('div[role=combobox]')
-
+    cardDiv = document.querySelector('div[class^=ordercard_order]');
+    
+    if(cardDiv == null) 
+    {
+        console.error("Cannot find card div");
+        return;
+    }
+    
     // Get all labels within the card div
     var labels = cardDiv.querySelectorAll('label');
 
@@ -325,5 +330,38 @@ async function setOrderType(orderType)
     else
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
+        await sleep(200);
+        setStopPrice(20100);
     }
+}
+
+async function setStopPrice(stop_price)
+{
+    cardDiv = document.querySelector('div[class^=ordercard_order]');
+    
+    if(cardDiv == null) 
+    {
+        console.error("Cannot find card div");
+        return;
+    }
+
+    // Get all labels within the card div
+    var labels = cardDiv.querySelectorAll('label');
+
+    // Iterate through each label
+    for (var i = 0; i < labels.length; i++) {
+        // Check if the label's text content is "Stop Price"
+        if (labels[i].textContent.trim() === 'Stop Price') {
+            // Select the parent div of the label with the specific class
+            var inputDiv = labels[i].closest('div.MuiFormControl-root');
+            if (inputDiv) {
+                // Find the combobox within this div
+                var stop_price_input = inputDiv.querySelector('input[type=number]');
+            }
+        }
+    }
+
+    if(stop_price_input == null) { console.log('Unable to locate Stop Price Edit Box'); return; }
+    stop_price_input.value = stop_price;
+    stop_price_input.dispatchEvent(new Event('change', {bubbles: true}));
 }
