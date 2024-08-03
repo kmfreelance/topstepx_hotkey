@@ -288,3 +288,24 @@ async function setAccount(account, delayMilliseconds = 25)
     }
     input_div.dispatchEvent(new Event('click', { bubbles : true }));
 }
+
+async function setOrderType(orderType)
+{
+	var input_div = document.querySelector('div[class^=ordercard_order]').querySelector('div[role=combobox]')
+    if(input_div == null)
+    {
+        console.log('unable to find input div for contract section');
+        return;
+    }
+	input_div.dispatchEvent(new KeyboardEvent('keydown', {key: 'ArrowUp', bubbles: true}));
+    await sleep(10);
+	var orderType_li = [...document.querySelectorAll('li')].filter(d => d.innerText.toLowerCase().includes(orderType.toLowerCase()))[0]
+    if(orderType_li == null)
+    {
+        console.log('unable to find li element for account ' + orderType);
+    }
+    else
+    {
+        orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
+    }
+}
