@@ -409,10 +409,10 @@ async function setMarketStopPrice()
 
     // Focus the input box
     stopPriceInput.focus();
-	await sleep(300);
+    await sleep(300);
 
     stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
-    await sleep(1000);
+    await sleep(300);
 
 }
 
@@ -459,7 +459,7 @@ async function setMarketLimitPrice()
 
     // Focus the input box
     limitPriceInput.focus();
-	await sleep(300);
+    await sleep(300);
 }
 
 async function setTrailingStop()
@@ -505,5 +505,5 @@ async function setTrailingStop()
 
     // Focus the input box
     trailInput.focus();
-	await sleep(300);
+    await sleep(300);
 }
