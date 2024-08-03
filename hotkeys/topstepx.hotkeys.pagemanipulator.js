@@ -291,8 +291,25 @@ async function setAccount(account, delayMilliseconds = 25)
 
 async function setOrderType(orderType)
 {
-    var input_div = [...document.querySelectorAll('div[class^=MuiInputBase-root')].filter(d => d.innerText.toLowerCase().startsWith('order type'))[0]
-	var input_dropdown = input_div.querySelector('div[role=combobox]')
+    // var input_div = [...document.querySelectorAll('div[class^=MuiInputBase-root')].filter(d => d.innerText.toLowerCase().startsWith('order type'))[0]
+	// var input_dropdown = input_div.querySelector('div[role=combobox]')
+
+    // Get all labels within the card div
+    var labels = cardDiv.querySelectorAll('label');
+
+    // Iterate through each label
+    for (var i = 0; i < labels.length; i++) {
+        // Check if the label's text content is "Order Type"
+        if (labels[i].textContent.trim() === 'Order Type') {
+            // Select the parent div of the label with the specific class
+            var inputDiv = labels[i].closest('div.MuiFormControl-root');
+            if (inputDiv) {
+                // Find the combobox within this div
+                var input_dropdown = inputDiv.querySelector('div[role=combobox]');
+            }
+        }
+    }
+
     if(input_dropdown == null)
     {
         console.log('unable to find input div for order type section');
