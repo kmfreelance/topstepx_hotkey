@@ -354,10 +354,11 @@ async function setStopPrice(stop_price)
     for (var i = 0; i < labels.length; i++) {
         // Check if the label's text content is "Stop Price"
         if (labels[i].textContent.trim() === 'Stop Price') {
+            foundStopPriceLabel = true;
             // Select the parent div of the label with the specific class
             var inputDiv = labels[i].closest('div.MuiFormControl-root');
             if (inputDiv) {
-                console.log(inputDiv.outerHTML);
+                console.info(inputDiv.outerHTML);
                 // Find the combobox within this div
                 stopPriceInput = inputDiv.querySelector('input[type=number]');
                 break;  // Break the loop once we find the correct input
@@ -365,7 +366,16 @@ async function setStopPrice(stop_price)
         }
     }
 
-    if(stopPriceInput == null) { console.log('Unable to locate Stop Price Edit Box'); return; }
+    if (!foundStopPriceLabel) {
+        console.error('Unable to find Stop Price label');
+        return;
+    }
+
+    if (stopPriceInput == null) {
+        console.error('Unable to locate Stop Price Edit Box');
+        return;
+    }
+
     stopPriceInput.value = stop_price;
     stopPriceInput.dispatchEvent(new Event('change', {bubbles: true}));
 }
