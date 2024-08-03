@@ -26,14 +26,6 @@ async function createAddWidget(addNews, addCalendar)
         .then((fj_js) => {
             eval(fj_js);
 
-            cargoLink = document.createElement("a")
-            cargoLink.href = 'https://t.ly/1Uy49';
-            cargoLink.target = '_blank';
-            cargoDiv = document.createElement("div");
-            cargoDiv.innerHTML = "<img width=15 src='https://avatars.githubusercontent.com/u/28972498?s=96&v=4'> CargoCult Hotkeys " + hotkeysVersion();
-            cargoLink.appendChild(cargoDiv);
-            cardDiv.appendChild(cargoLink);
-
             if(addNews)
             {
                 newsDiv = document.createElement("div");
