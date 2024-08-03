@@ -146,7 +146,34 @@ function buttonClickCommon(buttonTextToSearch)
 
 function setQuantityCommon(quantity)
 {
-    var quantity_input = document.querySelector('div[class^=ordercard_order] input[type=number]')
+    //var quantity_input = document.querySelector('div[class^=ordercard_order] input[type=number]')
+    var cardDiv = document.querySelector('div[class^=ordercard_order]');
+    
+    if(cardDiv == null) 
+    {
+        console.error("Cannot find card div");
+        return;
+    }
+
+    // Get all labels within the card div
+    var labels = cardDiv.querySelectorAll('label');
+
+    var quantity_input = null;
+    // Iterate through each label
+    for (var i = 0; i < labels.length; i++) {
+        console.log(labels[i].textContent.trim());
+        // Check if the label's text content is "Stop Price"
+        if (labels[i].textContent.trim().includes('Contracts')) {
+            // Select the parent div of the label with the specific class
+            var inputDiv = labels[i].closest('div.MuiFormControl-root');
+            if (inputDiv) {
+                console.info(inputDiv.outerHTML);
+                // Find the combobox within this div
+                quantity_input = inputDiv.querySelector('input[type=number]');
+                break;  // Break the loop once we find the correct input
+            }
+        }
+    }
     if(quantity_input == null) { console.log('Unable to locate Quantity Edit Box'); return; }
     quantity_input.value = quantity;
     quantity_input[Object.keys(quantity_input).filter((k) => k.startsWith('__reactProps'))[0]].onChange({'target' : { 'value' : quantity}});
@@ -376,24 +403,24 @@ async function setStopPrice(stop_price)
     stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
     await sleep(1000);
 
-    // Set the value and trigger necessary events
-    stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
-    await sleep(30);
-    stopPriceInput.value = stop_price;
-    await sleep(30);
-    stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
-    await sleep(30);
+        // Set the value and trigger necessary events
+    // stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
+    // await sleep(30);
+    // stopPriceInput.value = stop_price;
+    // await sleep(30);
+    // stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
+    // await sleep(30);
 
-    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
-    await sleep(30);
+    // stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
+    // await sleep(30);
 
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 38, bubbles: true}));
-    // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {keyCode: 38, bubbles: true}));
-    await sleep(300);
+    // stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 38, bubbles: true}));
+    // // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {keyCode: 38, bubbles: true}));
+    // await sleep(300);
 
-    stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 40, bubbles: true}));
-    // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
-    await sleep(300);
+    // stopPriceInput.dispatchEvent(new KeyboardEvent('keydown', {keyCode: 40, bubbles: true}));
+    // // stopPriceInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', bubbles: true}));
+    // await sleep(300);
 
-    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
+    // stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
 }
