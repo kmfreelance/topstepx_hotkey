@@ -351,7 +351,7 @@ async function setOrderType(orderType)
     else
     {
         orderType_li.dispatchEvent(new Event('click', { bubbles: true }));
-        await sleep(1000);
+        await sleep(3000);
 
 	if (orderType == 'limit'){
             setMarketLimitPrice()
@@ -383,7 +383,7 @@ async function setMarketStopPrice()
     var stopPriceInput = null;
     // Iterate through each label
     for (var i = 0; i < labels.length; i++) {
-	console.log(labels[i].textContent.trim());
+        console.log(labels[i].textContent.trim());
         // Check if the label's text content is "Stop Price"
         if (labels[i].textContent.trim().includes('Stop Price')) {
             foundStopPriceLabel = true;
@@ -408,14 +408,19 @@ async function setMarketStopPrice()
         return;
     }
 
+
     // Focus the input box
     stopPriceInput.focus();
-    await sleep(300);
+	await sleep(300);
 
-    stopPriceInput.dispatchEvent(new Event('click', { bubbles: true }));
+    // Set the value and trigger necessary events
+    stopPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await sleep(300);
+    stopPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
     await sleep(300);
 
 }
+
 
 async function setMarketLimitPrice()
 {
@@ -460,6 +465,11 @@ async function setMarketLimitPrice()
 
     // Focus the input box
     limitPriceInput.focus();
+	await sleep(300);
+    // Set the value and trigger necessary events
+    limitPriceInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await sleep(300);
+    limitPriceInput.dispatchEvent(new Event('change', { bubbles: true }));
     await sleep(300);
 }
 
@@ -506,5 +516,10 @@ async function setTrailingStop()
 
     // Focus the input box
     trailInput.focus();
+	await sleep(300);
+    // Set the value and trigger necessary events
+    trailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await sleep(300);
+    trailInput.dispatchEvent(new Event('change', { bubbles: true }));
     await sleep(300);
 }
