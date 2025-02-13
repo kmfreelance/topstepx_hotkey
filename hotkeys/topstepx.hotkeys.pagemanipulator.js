@@ -77,7 +77,7 @@ async function findChart() {
     return null;
 }
 
-async function setupHotkeys(accounts, addNews=true, addCalendar=true) {
+async function setupHotkeys(accounts, addNews=true, addCalendar=false) {
     var hotkeysDict = {}
     console.log(hotkeys);
     hotkeys.forEach((m) => hotkeysDict[m["keys"].sort().join()] = m["f"])
