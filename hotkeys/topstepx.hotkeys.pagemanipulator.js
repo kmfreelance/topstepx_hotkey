@@ -123,14 +123,20 @@ function setupDOMObserver() {
     function processDOM() {
         console.log("Processing DOM updates...");
         
-        // Try to find the DOM container with the price ladder
-        const domTable = document.querySelector('div[class*="dom_domRow"]')?.parentElement;
-        
-        if (!domTable) {
-            console.log("DOM table not found, retrying...");
+        // Try to find the DOM container starting from the domTab root
+        const domTab = document.getElementById('domTab');
+        if (!domTab) {
+            console.log("DOM tab not found, retrying...");
             return;
         }
-        console.log("Found DOM table:", domTable);
+
+        // Find the DOM grid container within domTab
+        const domContainer = domTab.querySelector('div[class*="MuiBox-root css-1h6r2m4"]');
+        if (!domContainer) {
+            console.log("DOM container not found, retrying...");
+            return;
+        }
+        console.log("Found DOM container:", domContainer);
 
         const tbody = document.getElementById('large-orders-tbody');
         if (!tbody) {
@@ -141,13 +147,13 @@ function setupDOMObserver() {
         // Clear existing entries
         tbody.innerHTML = '';
 
-        // Get all rows from the DOM
-        const rows = domTable.querySelectorAll('div[class*="dom_domRow"]');
+        // Get all rows from the DOM (excluding header)
+        const rows = domContainer.querySelectorAll('div[class*="dom_domRow"]');
         console.log("Found rows:", rows.length);
 
         rows.forEach(row => {
             // Skip the header row
-            if (row.textContent.includes('MY BID') || row.textContent.includes('BID SIZE')) {
+            if (row.querySelector('.dom_domHeader__muu-t')) {
                 return;
             }
 
@@ -155,16 +161,21 @@ function setupDOMObserver() {
             const cells = Array.from(row.children);
             
             if (cells.length >= 6) {
-                // Get bid and ask sizes
-                const bidSize = cells[1]?.querySelector('div[style*="background-color"]')?.textContent?.trim() || '0';
-                const askSize = cells[3]?.querySelector('div[style*="background-color"]')?.textContent?.trim() || '0';
-                const price = cells[2]?.textContent?.trim() || '';
-                const vol = cells[5]?.querySelector('span')?.textContent?.trim() || '';
+                // Get bid and ask sizes - looking for divs with background-color style
+                const bidSizeDiv = cells[1]?.querySelector('div[style*="background-color"] span');
+                const askSizeDiv = cells[3]?.querySelector('div[style*="background-color"] span');
+                const priceDiv = cells[2];
+                const volSpan = cells[5]?.querySelector('span[class*="dom_bidAmount"]');
+
+                const bidSize = bidSizeDiv?.textContent?.trim() || '0';
+                const askSize = askSizeDiv?.textContent?.trim() || '0';
+                const price = priceDiv?.textContent?.trim() || '';
+                const vol = volSpan?.textContent?.trim() || '';
 
                 // Process bid side
                 const bidSizeNum = parseInt(bidSize.replace(/,/g, ''));
                 if (bidSizeNum > 50) {
-                    console.log(`Found large bid order: Size: ${bidSizeNum}`);
+                    console.log(`Found large bid order: Size: ${bidSizeNum}, Price: ${price}, Vol: ${vol}`);
                     const newRow = document.createElement('tr');
                     newRow.innerHTML = `
                         <td style="text-align: right; padding: 5px; color: #089981">${price}</td>
@@ -177,7 +188,7 @@ function setupDOMObserver() {
                 // Process ask side
                 const askSizeNum = parseInt(askSize.replace(/,/g, ''));
                 if (askSizeNum > 50) {
-                    console.log(`Found large ask order: Size: ${askSizeNum}`);
+                    console.log(`Found large ask order: Size: ${askSizeNum}, Price: ${price}, Vol: ${vol}`);
                     const newRow = document.createElement('tr');
                     newRow.innerHTML = `
                         <td style="text-align: right; padding: 5px; color: #f23645">${price}</td>
@@ -202,22 +213,30 @@ function setupDOMObserver() {
 
     // Start observing the DOM table with configuration
     function startObserving() {
-        // Try to find the DOM container
-        const domContainer = document.querySelector('div[class*="dom_domRow"]')?.parentElement;
-        
-        if (domContainer) {
-            console.log("Starting DOM observation on:", domContainer);
-            observer.observe(domContainer, {
-                childList: true,
-                subtree: true,
-                characterData: true,
-                attributes: true
-            });
-            processDOM(); // Initial processing
-        } else {
-            console.log("DOM table not found, retrying in 1s...");
-            setTimeout(startObserving, 1000); // Retry if table not found
+        // Try to find the DOM tab container
+        const domTab = document.getElementById('domTab');
+        if (!domTab) {
+            console.log("DOM tab not found, retrying in 1s...");
+            setTimeout(startObserving, 1000);
+            return;
         }
+
+        // Find the grid container
+        const domContainer = domTab.querySelector('div[class*="MuiBox-root css-1h6r2m4"]');
+        if (!domContainer) {
+            console.log("DOM container not found, retrying in 1s...");
+            setTimeout(startObserving, 1000);
+            return;
+        }
+
+        console.log("Starting DOM observation on:", domContainer);
+        observer.observe(domContainer, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true
+        });
+        processDOM(); // Initial processing
     }
 
     startObserving();
