@@ -123,16 +123,15 @@ function setupDOMObserver() {
     function processDOM() {
         console.log("Processing DOM updates...");
         
-        // Try different possible selectors for the orderbook table
-        const domTable = document.querySelector('[class*="orderbook_table"]') || 
-                        document.querySelector('[class*="orderbook"]') ||
-                        document.querySelector('[data-testid="orderbook-table"]');
+        // First try to find the main DOM container - looking at the structure from screenshot
+        const domContainer = document.querySelector('div[class*="MY BID"]')?.closest('div[role="grid"]') ||
+                           document.querySelector('div[role="grid"]');
                         
-        if (!domTable) {
-            console.log("DOM table not found, retrying...");
+        if (!domContainer) {
+            console.log("DOM container not found, retrying...");
             return;
         }
-        console.log("Found DOM table:", domTable);
+        console.log("Found DOM container:", domContainer);
 
         const tbody = document.getElementById('large-orders-tbody');
         if (!tbody) {
@@ -143,41 +142,39 @@ function setupDOMObserver() {
         // Clear existing entries
         tbody.innerHTML = '';
 
-        // Get both bid and ask sections
-        const bidRows = domTable.querySelectorAll('[class*="bids"] tr');
-        const askRows = domTable.querySelectorAll('[class*="asks"] tr');
-        
-        console.log("Found bid rows:", bidRows.length, "ask rows:", askRows.length);
+        // Get all rows from the grid
+        const rows = domContainer.querySelectorAll('div[role="row"]');
+        console.log("Found total rows:", rows.length);
 
-        function processRows(rows, isBid) {
-            rows.forEach(row => {
-                // Get all cells including those with price, size, and volume
-                const cells = row.querySelectorAll('td, div[role="cell"]');
-                if (cells.length >= 3) {
-                    // Try to parse size from the second column
-                    const sizeText = cells[1]?.textContent?.trim() || '0';
-                    const size = parseInt(sizeText.replace(/,/g, ''));
+        rows.forEach(row => {
+            // Get all cells in the row
+            const cells = row.querySelectorAll('div[role="cell"]');
+            if (cells.length >= 3) {
+                // Price is in first cell, Size in second, Volume in third
+                const price = cells[0]?.textContent?.trim() || '';
+                const sizeText = cells[1]?.textContent?.trim() || '0';
+                const vol = cells[2]?.textContent?.trim() || '';
+
+                // Parse size and check if it's a large order
+                const size = parseInt(sizeText.replace(/,/g, ''));
+                
+                if (size > 50) {
+                    console.log(`Found large order - Price: ${price}, Size: ${size}, Vol: ${vol}`);
                     
-                    if (size > 50) {
-                        console.log(`Found large order: ${isBid ? 'Bid' : 'Ask'} Size: ${size}`);
-                        const price = cells[0]?.textContent?.trim() || '';
-                        const vol = cells[2]?.textContent?.trim() || '';
-                        
-                        const newRow = document.createElement('tr');
-                        newRow.innerHTML = `
-                            <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
-                            <td style="text-align: right; padding: 5px;">${size}</td>
-                            <td style="text-align: right; padding: 5px;">${vol}</td>
-                        `;
-                        tbody.appendChild(newRow);
-                    }
+                    // Determine if this is a bid or ask based on the row's position or class
+                    const isBid = row.closest('div[class*="bid"]') !== null || 
+                                price.includes('22,03'); // Assuming bids are below current price
+                    
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
+                        <td style="text-align: right; padding: 5px;">${size}</td>
+                        <td style="text-align: right; padding: 5px;">${vol}</td>
+                    `;
+                    tbody.appendChild(newRow);
                 }
-            });
-        }
-
-        // Process both bid and ask rows
-        processRows(bidRows, true);
-        processRows(askRows, false);
+            }
+        });
     }
 
     // Create an observer instance with a debounced callback
@@ -192,13 +189,12 @@ function setupDOMObserver() {
 
     // Start observing the DOM table with configuration
     function startObserving() {
-        // Try to find the orderbook container
-        const domTable = document.querySelector('[class*="orderbook"]') || 
-                        document.querySelector('[data-testid="orderbook"]');
+        // Try to find the grid container
+        const domContainer = document.querySelector('div[role="grid"]');
                         
-        if (domTable) {
-            console.log("Starting DOM observation on:", domTable);
-            observer.observe(domTable, {
+        if (domContainer) {
+            console.log("Starting DOM observation on grid container");
+            observer.observe(domContainer, {
                 childList: true,
                 subtree: true,
                 characterData: true,
@@ -206,11 +202,12 @@ function setupDOMObserver() {
             });
             processDOM(); // Initial processing
         } else {
-            console.log("DOM table not found, retrying in 1s...");
-            setTimeout(startObserving, 1000); // Retry if table not found
+            console.log("DOM grid container not found, retrying in 1s...");
+            setTimeout(startObserving, 1000); // Retry if container not found
         }
     }
 
+    // Start the observation process
     startObserving();
 }
 
