@@ -123,15 +123,14 @@ function setupDOMObserver() {
     function processDOM() {
         console.log("Processing DOM updates...");
         
-        // First try to find the main DOM container - looking at the structure from screenshot
-        const domContainer = document.querySelector('div[class*="MY BID"]')?.closest('div[role="grid"]') ||
-                           document.querySelector('div[role="grid"]');
-                        
-        if (!domContainer) {
-            console.log("DOM container not found, retrying...");
+        // Try to find the DOM container with the price ladder
+        const domTable = document.querySelector('div[class*="dom_domRow"]')?.parentElement;
+        
+        if (!domTable) {
+            console.log("DOM table not found, retrying...");
             return;
         }
-        console.log("Found DOM container:", domContainer);
+        console.log("Found DOM table:", domTable);
 
         const tbody = document.getElementById('large-orders-tbody');
         if (!tbody) {
@@ -142,33 +141,47 @@ function setupDOMObserver() {
         // Clear existing entries
         tbody.innerHTML = '';
 
-        // Get all rows from the grid
-        const rows = domContainer.querySelectorAll('div[role="row"]');
-        console.log("Found total rows:", rows.length);
+        // Get all rows from the DOM
+        const rows = domTable.querySelectorAll('div[class*="dom_domRow"]');
+        console.log("Found rows:", rows.length);
 
         rows.forEach(row => {
-            // Get all cells in the row
-            const cells = row.querySelectorAll('div[role="cell"]');
-            if (cells.length >= 3) {
-                // Price is in first cell, Size in second, Volume in third
-                const price = cells[0]?.textContent?.trim() || '';
-                const sizeText = cells[1]?.textContent?.trim() || '0';
-                const vol = cells[2]?.textContent?.trim() || '';
+            // Skip the header row
+            if (row.textContent.includes('MY BID') || row.textContent.includes('BID SIZE')) {
+                return;
+            }
 
-                // Parse size and check if it's a large order
-                const size = parseInt(sizeText.replace(/,/g, ''));
-                
-                if (size > 50) {
-                    console.log(`Found large order - Price: ${price}, Size: ${size}, Vol: ${vol}`);
-                    
-                    // Determine if this is a bid or ask based on the row's position or class
-                    const isBid = row.closest('div[class*="bid"]') !== null || 
-                                price.includes('22,03'); // Assuming bids are below current price
-                    
+            // Get all cells in the row
+            const cells = Array.from(row.children);
+            
+            if (cells.length >= 6) {
+                // Get bid and ask sizes
+                const bidSize = cells[1]?.querySelector('div[style*="background-color"]')?.textContent?.trim() || '0';
+                const askSize = cells[3]?.querySelector('div[style*="background-color"]')?.textContent?.trim() || '0';
+                const price = cells[2]?.textContent?.trim() || '';
+                const vol = cells[5]?.querySelector('span')?.textContent?.trim() || '';
+
+                // Process bid side
+                const bidSizeNum = parseInt(bidSize.replace(/,/g, ''));
+                if (bidSizeNum > 50) {
+                    console.log(`Found large bid order: Size: ${bidSizeNum}`);
                     const newRow = document.createElement('tr');
                     newRow.innerHTML = `
-                        <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
-                        <td style="text-align: right; padding: 5px;">${size}</td>
+                        <td style="text-align: right; padding: 5px; color: #089981">${price}</td>
+                        <td style="text-align: right; padding: 5px;">${bidSize}</td>
+                        <td style="text-align: right; padding: 5px;">${vol}</td>
+                    `;
+                    tbody.appendChild(newRow);
+                }
+
+                // Process ask side
+                const askSizeNum = parseInt(askSize.replace(/,/g, ''));
+                if (askSizeNum > 50) {
+                    console.log(`Found large ask order: Size: ${askSizeNum}`);
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td style="text-align: right; padding: 5px; color: #f23645">${price}</td>
+                        <td style="text-align: right; padding: 5px;">${askSize}</td>
                         <td style="text-align: right; padding: 5px;">${vol}</td>
                     `;
                     tbody.appendChild(newRow);
@@ -189,11 +202,11 @@ function setupDOMObserver() {
 
     // Start observing the DOM table with configuration
     function startObserving() {
-        // Try to find the grid container
-        const domContainer = document.querySelector('div[role="grid"]');
-                        
+        // Try to find the DOM container
+        const domContainer = document.querySelector('div[class*="dom_domRow"]')?.parentElement;
+        
         if (domContainer) {
-            console.log("Starting DOM observation on grid container");
+            console.log("Starting DOM observation on:", domContainer);
             observer.observe(domContainer, {
                 childList: true,
                 subtree: true,
@@ -202,12 +215,11 @@ function setupDOMObserver() {
             });
             processDOM(); // Initial processing
         } else {
-            console.log("DOM grid container not found, retrying in 1s...");
-            setTimeout(startObserving, 1000); // Retry if container not found
+            console.log("DOM table not found, retrying in 1s...");
+            setTimeout(startObserving, 1000); // Retry if table not found
         }
     }
 
-    // Start the observation process
     startObserving();
 }
 
