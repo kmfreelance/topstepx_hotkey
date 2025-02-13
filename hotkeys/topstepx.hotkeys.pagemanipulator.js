@@ -121,54 +121,92 @@ function createLargeOrdersSection(parentDiv) {
 function setupDOMObserver() {
     // Function to process DOM updates
     function processDOM() {
-        const domTable = document.querySelector('table[class*="orderbook_table"]');
-        if (!domTable) return;
+        console.log("Processing DOM updates...");
+        
+        // Try different possible selectors for the orderbook table
+        const domTable = document.querySelector('[class*="orderbook_table"]') || 
+                        document.querySelector('[class*="orderbook"]') ||
+                        document.querySelector('[data-testid="orderbook-table"]');
+                        
+        if (!domTable) {
+            console.log("DOM table not found, retrying...");
+            return;
+        }
+        console.log("Found DOM table:", domTable);
 
         const tbody = document.getElementById('large-orders-tbody');
-        if (!tbody) return;
+        if (!tbody) {
+            console.log("Target tbody not found");
+            return;
+        }
 
         // Clear existing entries
         tbody.innerHTML = '';
 
-        // Process all rows in the DOM
-        const rows = domTable.querySelectorAll('tr');
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length >= 3) {
-                const size = parseInt(cells[1]?.textContent || '0');
-                if (size > 50) {
-                    const price = cells[0]?.textContent || '';
-                    const vol = cells[2]?.textContent || '';
-                    const isBid = row.closest('tbody[class*="bids"]') !== null;
+        // Get both bid and ask sections
+        const bidRows = domTable.querySelectorAll('[class*="bids"] tr');
+        const askRows = domTable.querySelectorAll('[class*="asks"] tr');
+        
+        console.log("Found bid rows:", bidRows.length, "ask rows:", askRows.length);
+
+        function processRows(rows, isBid) {
+            rows.forEach(row => {
+                // Get all cells including those with price, size, and volume
+                const cells = row.querySelectorAll('td, div[role="cell"]');
+                if (cells.length >= 3) {
+                    // Try to parse size from the second column
+                    const sizeText = cells[1]?.textContent?.trim() || '0';
+                    const size = parseInt(sizeText.replace(/,/g, ''));
                     
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
-                        <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
-                        <td style="text-align: right; padding: 5px;">${size}</td>
-                        <td style="text-align: right; padding: 5px;">${vol}</td>
-                    `;
-                    tbody.appendChild(newRow);
+                    if (size > 50) {
+                        console.log(`Found large order: ${isBid ? 'Bid' : 'Ask'} Size: ${size}`);
+                        const price = cells[0]?.textContent?.trim() || '';
+                        const vol = cells[2]?.textContent?.trim() || '';
+                        
+                        const newRow = document.createElement('tr');
+                        newRow.innerHTML = `
+                            <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
+                            <td style="text-align: right; padding: 5px;">${size}</td>
+                            <td style="text-align: right; padding: 5px;">${vol}</td>
+                        `;
+                        tbody.appendChild(newRow);
+                    }
                 }
-            }
-        });
+            });
+        }
+
+        // Process both bid and ask rows
+        processRows(bidRows, true);
+        processRows(askRows, false);
     }
 
-    // Create an observer instance
+    // Create an observer instance with a debounced callback
+    let timeout;
     const observer = new MutationObserver(() => {
-        processDOM();
+        // Debounce the processing to avoid too frequent updates
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            processDOM();
+        }, 100); // Wait 100ms between updates
     });
 
     // Start observing the DOM table with configuration
     function startObserving() {
-        const domTable = document.querySelector('table[class*="orderbook_table"]');
+        // Try to find the orderbook container
+        const domTable = document.querySelector('[class*="orderbook"]') || 
+                        document.querySelector('[data-testid="orderbook"]');
+                        
         if (domTable) {
+            console.log("Starting DOM observation on:", domTable);
             observer.observe(domTable, {
                 childList: true,
                 subtree: true,
-                characterData: true
+                characterData: true,
+                attributes: true
             });
             processDOM(); // Initial processing
         } else {
+            console.log("DOM table not found, retrying in 1s...");
             setTimeout(startObserving, 1000); // Retry if table not found
         }
     }
