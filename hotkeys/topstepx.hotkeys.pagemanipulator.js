@@ -57,7 +57,123 @@ async function createAddWidget(addNews, addCalendar)
                 options.widgetType= "ECOCAL";
                 new window.FJWidgets.createWidget(options);
             }
+
+            // Add Large Orders DOM Section
+            createLargeOrdersSection(cardDiv);
         });
+}
+
+function createLargeOrdersSection(parentDiv) {
+    // Create container for large orders
+    const largeOrdersDiv = document.createElement("div");
+    largeOrdersDiv.id = "large-orders-container";
+    largeOrdersDiv.style.cssText = `
+        background-color: #1e222d;
+        color: #b2b5be;
+        width: 300px;
+        margin-top: 20px;
+        border-radius: 4px;
+        padding: 10px;
+    `;
+
+    // Add header
+    const header = document.createElement("div");
+    header.innerHTML = "Large Orders (>50)";
+    header.style.cssText = `
+        font-weight: bold;
+        padding: 5px;
+        border-bottom: 1px solid #373a42;
+    `;
+    largeOrdersDiv.appendChild(header);
+
+    // Create table for orders
+    const table = document.createElement("table");
+    table.id = "large-orders-table";
+    table.style.cssText = `
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    `;
+    
+    // Add table header
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+        <tr>
+            <th style="text-align: right; padding: 5px;">Price</th>
+            <th style="text-align: right; padding: 5px;">Size</th>
+            <th style="text-align: right; padding: 5px;">Vol</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    
+    // Add table body
+    const tbody = document.createElement("tbody");
+    tbody.id = "large-orders-tbody";
+    table.appendChild(tbody);
+    
+    largeOrdersDiv.appendChild(table);
+    parentDiv.appendChild(largeOrdersDiv);
+
+    // Start monitoring DOM changes
+    setupDOMObserver();
+}
+
+function setupDOMObserver() {
+    // Function to process DOM updates
+    function processDOM() {
+        const domTable = document.querySelector('table[class*="orderbook_table"]');
+        if (!domTable) return;
+
+        const tbody = document.getElementById('large-orders-tbody');
+        if (!tbody) return;
+
+        // Clear existing entries
+        tbody.innerHTML = '';
+
+        // Process all rows in the DOM
+        const rows = domTable.querySelectorAll('tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 3) {
+                const size = parseInt(cells[1]?.textContent || '0');
+                if (size > 50) {
+                    const price = cells[0]?.textContent || '';
+                    const vol = cells[2]?.textContent || '';
+                    const isBid = row.closest('tbody[class*="bids"]') !== null;
+                    
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td style="text-align: right; padding: 5px; color: ${isBid ? '#089981' : '#f23645'}">${price}</td>
+                        <td style="text-align: right; padding: 5px;">${size}</td>
+                        <td style="text-align: right; padding: 5px;">${vol}</td>
+                    `;
+                    tbody.appendChild(newRow);
+                }
+            }
+        });
+    }
+
+    // Create an observer instance
+    const observer = new MutationObserver(() => {
+        processDOM();
+    });
+
+    // Start observing the DOM table with configuration
+    function startObserving() {
+        const domTable = document.querySelector('table[class*="orderbook_table"]');
+        if (domTable) {
+            observer.observe(domTable, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+            processDOM(); // Initial processing
+        } else {
+            setTimeout(startObserving, 1000); // Retry if table not found
+        }
+    }
+
+    startObserving();
 }
 
 async function findChart() {
