@@ -11,7 +11,7 @@ async function createAddWidget(addNews, addCalendar)
     for(i=0; i < 10 || cardDiv == null; ++i)
     {
         await sleep(250);
-        cardDiv = document.querySelector('div[class^=ordercard_order]');
+        cardDiv = document.querySelector('div[class^=ordercard]');
     }
 
     if(cardDiv == null) 
